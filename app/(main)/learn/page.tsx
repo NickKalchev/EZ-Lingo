@@ -2,15 +2,24 @@ import FeedWrapper from "@/components/FeedWrapper";
 import StickyWrapper from "@/components/StickyWrapper";
 import LearnHeader from "./LearnHeader";
 import UserProgress from "@/components/UserProgress";
-import { getUserProgress } from "@/db/queries";
+import { getCourseProgress, getLessonPercentage, getUnits, getUserProgress } from "@/db/queries";
 import { redirect } from "next/navigation";
+import Unit from "@/components/Unit";
+import { lessons, units as unitsSchema } from "@/db/schema";
 
 async function LearnPage() {
     const userProgressData = getUserProgress();
+    const courseProgressData = getCourseProgress();
+    const lessonPercentageData = getLessonPercentage();
+    const unitsData = getUnits();
 
-    const [userProgress] = await Promise.all([userProgressData]);
+    const [userProgress, units, courseProgress, lessonPercentage] = await Promise.all([userProgressData, unitsData, courseProgressData, lessonPercentageData]);
 
     if(!userProgress || !userProgress.activeCourse) {
+        redirect("/courses");
+    };
+
+    if (!courseProgress) {
         redirect("/courses");
     };
 
@@ -26,6 +35,21 @@ async function LearnPage() {
             </StickyWrapper>
             <FeedWrapper>
                 <LearnHeader title={userProgress.activeCourse.title} />
+                {units.map((unit) => (
+                    <div key={unit.id} className="mb-10">
+                        <Unit
+                            id={unit.id}
+                            order={unit.order}
+                            description={unit.description}
+                            title={unit.title}
+                            lessons={unit.lessons}
+                            activeLesson={courseProgress.activeLesson as typeof lessons.$inferSelect & {
+                                unit: typeof unitsSchema.$inferSelect;
+                            } | undefined}
+                            activeLessonPercentage={lessonPercentage}
+                        />
+                    </div>
+                ))}
             </FeedWrapper>
         </div>
     )

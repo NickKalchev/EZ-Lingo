@@ -1,4 +1,4 @@
-import MobileSidebar from "./mobile-sidebar";
+import MobileSidebar from "./MobileSidebar";
 
 function MobileHeader() {
     return (
