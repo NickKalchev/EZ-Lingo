@@ -15,7 +15,7 @@ function Sidebar({ className }: Props) {
             "flex h-full lg:w-[256px] lg:fixed left-0 top-0 px-4 border-r-2 flex-col border-green-600/30",
             className
         )}>
-            <Link href="/learn">
+            <Link href="/">
                 <div className="pt-8 pl-4 pb-7 flex items-center gap-x-3">
                         <Image src="/logo.svg" height={120} width={120} alt="Logo" className="rounded-lg -mx-10" priority />
                         <h1 className="text-2xl font-extrabold text-green-600/80 tracking-wide">
