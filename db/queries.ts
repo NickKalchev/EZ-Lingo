@@ -1,4 +1,4 @@
-import { challengeProgress, challenges, courses, lessons, units, userProgress } from '@/db/schema';
+import { challengeProgress, challenges, courses, lessons, units, userProgress, userSubscription } from '@/db/schema';
 import { cache } from "react";
 import db from "@/db/drizzle";
 import { auth } from "@clerk/nextjs/server";
@@ -30,11 +30,14 @@ export const getUnits = cache(async () => {
     };
 
     const data = await db.query.units.findMany({
+        orderBy: (units, { asc }) => [asc(units.order)],
         where: eq(units.courseId, userProgress.activeCourseId),
         with: {
             lessons: {
+                orderBy: (lessons, { asc }) => [asc(lessons.order)],
                 with: {
                     challenges: {
+                        orderBy: (challenges, { asc }) => [asc(challenges.order)],
                         with: {
                             challengeProgress: {
                                 where: eq(challengeProgress.userId,userId)
@@ -71,7 +74,17 @@ export const getCourses = cache(async () => {
 
 export const getCourseById = cache(async (courseId: number) => {
     const data = await db.query.courses.findFirst({
-        where: eq(courses.id, courseId)
+        where: eq(courses.id, courseId),
+        with: {
+            units: {
+                orderBy: (units, { asc }) => [asc(units.order)],
+                with: {
+                    lessons: {
+                        orderBy: (lessons, { asc }) => [asc(lessons.order)],
+                    }
+                }
+            }
+        }
     });
 
     return data;
@@ -167,4 +180,25 @@ export const getLessonPercentage = cache(async () => {
     const percentage = Math.round((completedChallenges.length / lesson.challenges.length) * 100);
 
     return percentage;
+});
+
+const DAY_IN_MILISECONDS = 86_400_000;
+
+export const getUserSubscription = cache(async () => {
+    const { userId } = await auth();
+
+    if (!userId) return null;
+
+    const data = await db.query.userSubscription.findFirst({
+        where: eq(userSubscription.userId, userId)
+    });
+
+    if (!data) return null;
+
+    const isActive = data.stripePriceId && data.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MILISECONDS > Date.now();
+
+    return {
+       ...data,
+        isActive: !!isActive
+    };
 });

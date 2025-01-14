@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { useTransition } from "react";
 import { refillHearts } from "@/actions/user-progress";
+import { createStripeUrl } from "@/actions/user-subscription";
+import { POINTS_TO_REFILL } from "@/constants";
 
 type Props = {
     hearts: number;
@@ -12,7 +14,6 @@ type Props = {
     hasActiveSubscription: boolean;
 };
 
-const POINTS_TO_REFILL = 10;
 
 function Items({ hearts, points, hasActiveSubscription }: Props) {
     const [pending, startTransition] = useTransition();
@@ -26,6 +27,18 @@ function Items({ hearts, points, hasActiveSubscription }: Props) {
             refillHearts()
             .catch(() => toast.error("Something went wrong"))
         })
+    };
+
+    const onUpgrade = () => {
+        startTransition(() => {
+            createStripeUrl()
+                .then((response) => {
+                    if (response.data) {
+                        window.location.href = response.data;
+                    }
+                })
+                .catch(() => toast.error("Something went wrong. Please try again."));
+        });
     };
 
     return (
@@ -57,6 +70,25 @@ function Items({ hearts, points, hasActiveSubscription }: Props) {
                             <p>{POINTS_TO_REFILL}</p>
                         </div>
                     )}
+                </Button>
+            </div>
+            <div className="flex items-center w-full p-4 pt-8 gap-x-4 border-t-2">
+                <Image 
+                    src="/unlimited.svg"
+                    alt="unlimited"
+                    height={60}
+                    width={60}
+                />
+                <div className="flex-1">
+                    <p className="text-neutral-700 text-base lg:text-xl font-bold">
+                        Unlimited hearts
+                    </p>
+                </div>
+                <Button
+                    disabled={pending}
+                    onClick={onUpgrade}
+                >
+                    {hasActiveSubscription ? "settings" : "upgrade"}
                 </Button>
             </div>
         </ul>
