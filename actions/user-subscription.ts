@@ -39,7 +39,7 @@ export const createStripeUrl = async () => {
                         name: "EZ Lingo Pro",
                         description: "Unlimited hearts for Ez-Lingo",
                     },
-                    unit_amount_decimal: 2000,
+                    unit_amount_decimal: "2000",
                     recurring: {
                         interval: "month"
                     }
