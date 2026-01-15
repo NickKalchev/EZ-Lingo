@@ -7,9 +7,10 @@ import { Loader } from "lucide-react";
 
 type Props = {
     className?: string;
+    onClose?: () => void;
 }
 
-function Sidebar({ className }: Props) {
+function Sidebar({ className, onClose }: Props) {
     return (
         <div className={cn(
             "flex h-full lg:w-[256px] lg:fixed left-0 top-0 px-4 border-r-2 flex-col border-green-600/30",
@@ -27,22 +28,26 @@ function Sidebar({ className }: Props) {
                 <SidebarItem 
                     label="Learn" 
                     href="/learn" 
-                    iconSrc="/learn-ico.svg" 
+                    iconSrc="/learn-ico.svg"
+                    onClick={onClose}
                 />
                 <SidebarItem 
                     label="Leaderboard"  
                     href="/leaderboard"  
-                    iconSrc="/leaderboard-ico.svg" 
+                    iconSrc="/leaderboard-ico.svg"
+                    onClick={onClose} 
                 />
                 <SidebarItem 
                     label="Quests" 
                     href="/quests" 
-                    iconSrc="/quests-ico.svg" 
+                    iconSrc="/quests-ico.svg"
+                    onClick={onClose} 
                 />
                 <SidebarItem 
                     label="Shop" 
                     href="/shop" 
-                    iconSrc="/shop-ico.svg" 
+                    iconSrc="/shop-ico.svg"
+                    onClick={onClose} 
                 />
             </div>
             <div className="p-4">
